@@ -28,3 +28,4 @@ monitoring/certs/
 **/*.swp
 **/*.swo
 **/.DS_Store
+!/README.md
