@@ -1,0 +1,29 @@
+---
+- name: Install Puppet on all nodes
+  hosts: all
+  become: yes
+  tasks:
+    - name: Download Puppet release package
+      get_url:
+        url: https://apt.puppet.com/puppet8-release-noble.deb
+        dest: /tmp/puppet8-release-noble.deb
+
+    - name: Install Puppet release package
+      apt:
+        deb: /tmp/puppet8-release-noble.deb
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Puppet Agent
+      apt:
+        name: puppet-agent
+        state: present
+
+    - name: Ensure /opt/puppetlabs/bin is in PATH
+      lineinfile:
+        path: /etc/profile.d/puppet.sh
+        line: 'export PATH=$PATH:/opt/puppetlabs/bin'
+        create: yes
+        mode: '0644'

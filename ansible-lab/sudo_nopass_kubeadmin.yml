@@ -1,0 +1,13 @@
+---
+- name: Allow passwordless sudo for user kubeadmin
+  hosts: kubeadmin_nodes
+  become: true
+  tasks:
+    - name: Ensure kubeadmin can sudo without password
+      lineinfile:
+        path: /etc/sudoers.d/90-kubeadmin-nopasswd
+        create: yes
+        mode: '0440'
+        line: 'kubeadmin ALL=(ALL) NOPASSWD:ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+

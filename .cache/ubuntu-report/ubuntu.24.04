@@ -1,0 +1,71 @@
+{
+  "Version": "24.04",
+  "OEM": {
+    "Vendor": "QEMU",
+    "Product": "Standard PC (i440FX + PIIX, 1996)",
+    "Family": ""
+  },
+  "BIOS": {
+    "Vendor": "SeaBIOS",
+    "Version": "rel-1.16.2-0-gea1b7a073390-prebuilt.qemu.org"
+  },
+  "Arch": "amd64",
+  "HwCap": "x86-64-v2",
+  "GPU": [
+    {
+      "Vendor": "1234",
+      "Model": "1111"
+    }
+  ],
+  "RAM": 8,
+  "Disks": [
+    107.4
+  ],
+  "Partitions": [
+    102.6,
+    6.1
+  ],
+  "Screens": [
+    {
+      "Size": "320mmx200mm",
+      "Resolution": "1280x800",
+      "Frequency": "74.93"
+    }
+  ],
+  "Autologin": false,
+  "LivePatch": false,
+  "Session": {
+    "DE": "ubuntu:GNOME",
+    "Name": "ubuntu",
+    "Type": "wayland"
+  },
+  "Language": "en_US",
+  "Timezone": "America/Chicago",
+  "Install": {
+    "Type": "Flutter",
+    "OEM": false,
+    "Media": "Ubuntu 24.04.1 LTS",
+    "Stages": {
+      "1": "locale",
+      "29": "accessibility",
+      "31": "keyboard",
+      "32": "network",
+      "39": "refresh",
+      "42": "tryOrInstall",
+      "44": "autoinstall",
+      "45": "sourceSelection",
+      "47": "codecsAndDrivers",
+      "57": "storage",
+      "264": "identity",
+      "354": "timezone",
+      "357": "confirm",
+      "361": "install",
+      "1220": "done"
+    },
+    "Language": "en",
+    "Minimal": true,
+    "RestrictedAddons": false,
+    "PartitionMethod": "use_device",
+    "UseActiveDirectory": false
+  }
+}

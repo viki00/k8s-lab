@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Ansible
+*.retry
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project Specific
+.gemini/
+kubespray/.git/
+kubespray/venv/
+monitoring/grafana_data/
+ansible-lab/hosts.ini
+kubespray/inventory/mycluster/hosts.ini
+kubespray/inventory/mycluster/inventory.ini

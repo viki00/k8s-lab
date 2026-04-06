@@ -1,0 +1,13 @@
+---
+- name: Allow passwordless sudo for user vik
+  hosts: vik_nodes
+  become: true
+  tasks:
+    - name: Ensure vik can sudo without password
+      lineinfile:
+        path: /etc/sudoers.d/90-vik-nopasswd
+        create: yes
+        mode: '0440'
+        line: 'vik ALL=(ALL) NOPASSWD:ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+

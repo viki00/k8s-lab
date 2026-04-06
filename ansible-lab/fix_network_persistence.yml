@@ -1,0 +1,56 @@
+---
+- name: Configure Static IP and Persistent Netplan
+  hosts: vik_nodes
+  become: true
+  vars:
+    # Map hostnames to their intended static IPs from hosts.ini
+    node_ips:
+      vik1: 10.0.0.92
+      vik2: 10.0.0.194
+      vik3: 10.0.0.204
+      vik4: 10.0.0.55
+      vik5: 10.0.0.96
+    gateway: 10.0.0.1
+    dns_servers: [1.1.1.1, 8.8.8.8]
+
+  tasks:
+    - name: Disable Cloud-Init network configuration
+      copy:
+        dest: /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg
+        content: "network: {config: disabled}\n"
+        mode: '0644'
+
+    - name: Fix Netplan global config permissions
+      file:
+        path: /etc/netplan/01-network-manager-all.yaml
+        mode: '0600'
+
+    - name: Create static Netplan configuration
+      copy:
+        dest: /etc/netplan/50-cloud-init.yaml
+        mode: '0600'
+        content: |
+          network:
+            version: 2
+            renderer: NetworkManager
+            ethernets:
+              ens18:
+                dhcp4: no
+                addresses:
+                  - {{ node_ips[inventory_hostname] }}/24
+                routes:
+                  - to: default
+                    via: {{ gateway }}
+                nameservers:
+                  addresses: {{ dns_servers }}
+
+    - name: Apply Netplan configuration
+      shell: netplan apply
+      async: 10
+      poll: 0
+      register: netplan_apply
+      ignore_errors: true
+
+    - name: Wait for connectivity to return
+      wait_for_connection:
+        timeout: 60
