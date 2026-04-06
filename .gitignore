@@ -1,24 +1,30 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.venv/
+# Ignore everything
+/*
 
-# Ansible
-*.retry
+# Allow specific files/directories
+!/.gitignore
+!/GEMINI.md
+!/ansible-lab/
+!/dns/
+!/monitoring/
+!/puppet/
+!/kubespray/
+!/fix_dashboards_uid.py
+!/import_dashboards.py
+!/k8s_cluster.json
+!/kube-state-lb.yaml
+!/metallb.yaml
+!/metallb-config.yml
+!/node_exporter_full.json
+!/storage-test.yaml
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Project Specific
-.gemini/
+# Within allowed directories, ignore local/sensitive files
+ansible-lab/hosts.ini
 kubespray/.git/
 kubespray/venv/
 monitoring/grafana_data/
-ansible-lab/hosts.ini
-kubespray/inventory/mycluster/hosts.ini
-kubespray/inventory/mycluster/inventory.ini
+monitoring/certs/
+**/__pycache__/
+**/*.swp
+**/*.swo
+**/.DS_Store
