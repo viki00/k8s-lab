@@ -9,6 +9,34 @@ This workspace is a DevOps/SRE/DBA lab environment focused on infrastructure as 
 - **Networking:** MetalLB for LoadBalancer services
 - **Role focus:** High Availability, Observability, Performance Tuning, and Database Reliability.
 
+## Current Cluster Architecture (as of April 6, 2026)
+- **Kubernetes Version:** v1.31.9
+- **Nodes Status:** All nodes are currently **Ready**.
+- **Inventory:**
+  - `vik0` (10.0.0.44): Management Node (Docker, DNS, Monitoring, Backups)
+  - `vik1` (10.0.0.92): Control Plane / etcd
+  - `vik2` (10.0.0.194): Control Plane / etcd
+  - `vik3` (10.0.0.204): Control Plane / etcd
+  - `vik4` (10.0.0.55): Worker
+  - `vik5` (10.0.0.96): Worker
+- **Core Stack:**
+  - **CNI:** Cilium
+  - **Ingress Controller:** Ingress-NGINX
+  - **LoadBalancer:** MetalLB (IP Pool: `192.168.1.230-192.168.1.250`)
+  - **Storage:** Longhorn (for K8s), TrueNAS NFS (for backups)
+- **Host OS:** Ubuntu 24.04.1 LTS (6.14.0-33-generic)
+
+## Backup & Disaster Recovery (DR)
+- **Backup Server:** `vik0` (Management Node)
+- **Storage Backend:** TrueNAS NFS (`10.0.0.18:/mnt/bigdata1`) mounted at `/backup`
+- **etcd Backups:**
+  - **Script:** `/usr/local/bin/etcd-backup.sh`
+  - **Target:** Snapshots from `vik1` (10.0.0.92)
+  - **Location:** `/backup/etcd/`
+  - **Retention:** 3 latest copies (automated rotation)
+  - **Schedule:** Daily at 02:00 AM (via `/etc/cron.d/etcd-backup`)
+- **Shared Storage:** `/backup` is a shared pool for Postgres, etcd, and other product backups.
+
 ## Engineering Standards & Practices
 
 ### Infrastructure as Code (IaC)
