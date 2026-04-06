@@ -1,0 +1,58 @@
+---
+- name: Deploy Puppet Metrics Reporting
+  hosts: kubeadmin_nodes
+  become: true
+  tasks:
+    - name: Create metrics directory
+      file:
+        path: /var/lib/prometheus/node-exporter
+        state: directory
+        mode: '0755'
+
+    - name: Deploy puppet_report_metrics.sh
+      copy:
+        dest: /usr/local/bin/puppet_report_metrics.sh
+        mode: '0755'
+        content: |
+          #!/bin/bash
+          SUMMARY_FILE="/opt/puppetlabs/puppet/public/last_run_summary.yaml"
+          PROM_FILE="/var/lib/prometheus/node-exporter/puppet_run.prom"
+          mkdir -p $(dirname $PROM_FILE)
+          if [ -f "$SUMMARY_FILE" ]; then
+              last_run=$(grep "last_run:" "$SUMMARY_FILE" | awk '{print $2}')
+              changed=$(grep "changed:" "$SUMMARY_FILE" | head -1 | awk '{print $2}')
+              failed=$(grep "failed:" "$SUMMARY_FILE" | head -1 | awk '{print $2}')
+              out_of_sync=$(grep "out_of_sync:" "$SUMMARY_FILE" | head -1 | awk '{print $2}')
+              cat << EOF > "$PROM_FILE"
+          # HELP puppet_last_run_timestamp_seconds Timestamp of the last puppet run.
+          # TYPE puppet_last_run_timestamp_seconds gauge
+          puppet_last_run_timestamp_seconds $last_run
+          # HELP puppet_changed_resources_total Number of resources changed in last run.
+          # TYPE puppet_changed_resources_total gauge
+          puppet_changed_resources_total ${changed:-0}
+          # HELP puppet_failed_resources_total Number of resources that failed in last run.
+          # TYPE puppet_failed_resources_total gauge
+          puppet_failed_resources_total ${failed:-0}
+          # HELP puppet_out_of_sync_resources_total Number of resources out of sync in last run.
+          # TYPE puppet_out_of_sync_resources_total gauge
+          puppet_out_of_sync_resources_total ${out_of_sync:-0}
+          EOF
+          fi
+
+    - name: Run metrics report script
+      command: /usr/local/bin/puppet_report_metrics.sh
+      args:
+        creates: /var/lib/prometheus/node-exporter/puppet_run.prom
+
+    - name: Ensure node_exporter textfile collector is enabled (Ubuntu/Debian)
+      lineinfile:
+        path: /etc/default/prometheus-node-exporter
+        regexp: '^ARGS='
+        line: 'ARGS="--collector.textfile.directory=/var/lib/prometheus/node-exporter"'
+      register: node_exporter_config
+
+    - name: Restart node_exporter if config changed
+      service:
+        name: prometheus-node-exporter
+        state: restarted
+      when: node_exporter_config.changed
