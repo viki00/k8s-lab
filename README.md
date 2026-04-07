@@ -14,19 +14,19 @@ The lab is built on **Proxmox VE** virtual machines, managed via **Ansible**, an
 - **Observability:** Prometheus & Grafana
 
 ## Cluster Architecture (as of April 2026)
-| Hostname | IP Address | Role | OS |
-| :--- | :--- | :--- | :--- |
-| **vik0** | 10.0.0.44 | Management (Docker, DNS, Monitoring, Backups) | Ubuntu 24.04 |
-| **vik1** | 10.0.0.92 | Control Plane / etcd | Ubuntu 24.04 |
-| **vik2** | 10.0.0.194 | Control Plane / etcd | Ubuntu 24.04 |
-| **vik3** | 10.0.0.204 | Control Plane / etcd | Ubuntu 24.04 |
-| **vik4** | 10.0.0.55 | Worker Node | Ubuntu 24.04 |
-| **vik5** | 10.0.0.96 | Worker Node | Ubuntu 24.04 |
+| Hostname | IP Address | Role | OS | Specs |
+| :--- | :--- | :--- | :--- | :--- |
+| **vik0** | 10.0.0.44 | Management (Docker, DNS, Monitoring, Backups) | Ubuntu 24.04 | 8 vCPU / 8GB RAM |
+| **vik1** | 10.0.0.92 | Control Plane / etcd | Ubuntu 24.04 | 8 vCPU / 4GB RAM |
+| **vik2** | 10.0.0.194 | Control Plane / etcd | Ubuntu 24.04 | 8 vCPU / 4GB RAM |
+| **vik3** | 10.0.0.204 | Control Plane / etcd | Ubuntu 24.04 | 8 vCPU / 4GB RAM |
+| **vik4** | 10.0.0.55 | Worker Node | Ubuntu 24.04 | 8 vCPU / 4GB RAM |
+| **vik5** | 10.0.0.96 | Worker Node | Ubuntu 24.04 | 8 vCPU / 4GB RAM |
 
 ## Key Features
 
 ### 1. Networking & Load Balancing
-- **MetalLB:** Configured with an IP pool (`192.168.1.230 - 192.168.1.250`) to provide `LoadBalancer` services within the local network.
+- **MetalLB:** Configured with an IP pool (`10.0.0.230 - 10.0.0.250`) to provide `LoadBalancer` services within the local network.
 - **Cilium:** Used as the CNI for high-performance networking and security policies.
 
 ### 2. Storage & Backups
