@@ -6,7 +6,7 @@ metadata:
   name: home-pool
 spec:
   addresses:
-  - 192.168.1.230-192.168.1.250
+  - 10.0.0.230-10.0.0.250
 
 ---
 apiVersion: metallb.io/v1beta1

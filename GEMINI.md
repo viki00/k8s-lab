@@ -9,9 +9,10 @@ This workspace is a DevOps/SRE/DBA lab environment focused on infrastructure as 
 - **Networking:** MetalLB for LoadBalancer services
 - **Role focus:** High Availability, Observability, Performance Tuning, and Database Reliability.
 
-## Current Cluster Architecture (as of April 6, 2026)
+## Current Cluster Architecture (as of April 7, 2026)
 - **Kubernetes Version:** v1.31.9
 - **Nodes Status:** All nodes are currently **Ready**.
+- **DNS Fix:** Resolved a recursive loop in `nodelocaldns` by forwarding directly to upstream servers (`10.0.0.44`, `1.1.1.1`) instead of `/etc/resolv.conf`.
 - **Inventory:**
   - `vik0` (10.0.0.44): Management Node (Docker, DNS, Monitoring, Backups)
   - `vik1` (10.0.0.92): Control Plane / etcd
@@ -22,9 +23,19 @@ This workspace is a DevOps/SRE/DBA lab environment focused on infrastructure as 
 - **Core Stack:**
   - **CNI:** Cilium
   - **Ingress Controller:** Ingress-NGINX
-  - **LoadBalancer:** MetalLB (IP Pool: `192.168.1.230-192.168.1.250`)
-  - **Storage:** Longhorn (for K8s), TrueNAS NFS (for backups)
-- **Host OS:** Ubuntu 24.04.1 LTS (6.14.0-33-generic)
+  - **LoadBalancer:** MetalLB (IP Pool: `10.0.0.230-10.0.0.250` - Aligned with local network)
+  - **Storage:** Longhorn (Persistent storage for TimescaleDB and Grafana)
+  - **Database:** TimescaleDB (Running in `pipeline` namespace with compression enabled)
+
+## Automated Stock Pipeline
+- **Ingestor:** Python-based `yfinance` snapshots running every 5 minutes.
+- **Historical Backfill:** Pulls 60 days of 5-minute data and 6 months of 1-hour data for 14 major tickers.
+- **Dashboard:** Streamlit-based **Stock Lab Terminal** providing candlestick charts, SMA 50/200, RSI, and signal generation.
+
+## Observability & Access
+- **Grafana:** [http://metrics.lab](http://10.0.0.232) (Persistent storage enabled, Anonymous Admin access)
+- **Stock Terminal:** [http://stocks.lab](http://10.0.0.231)
+- **Longhorn UI:** [http://longhorn.lab](http://10.0.0.230)
 
 ## Backup & Disaster Recovery (DR)
 - **Backup Server:** `vik0` (Management Node)

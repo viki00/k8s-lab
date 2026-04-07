@@ -38,12 +38,50 @@ The lab is built on **Proxmox VE** virtual machines, managed via **Ansible**, an
 - **Prometheus/Grafana:** Full stack monitoring.
 - **Puppet Metrics:** Includes a custom Ansible playbook (`ansible-lab/deploy_puppet_metrics.yml`) to export Puppet run summaries into Prometheus via the Node Exporter textfile collector.
 
+## Monitoring & Dashboards
+| Service | URL | Purpose |
+| :--- | :--- | :--- |
+| **Stock Terminal** | [http://stocks.lab](http://10.0.0.231) | Real-time stock charts & signals (Streamlit) |
+| **Grafana** | [http://metrics.lab](http://10.0.0.232) | Cluster & Ingestion health |
+| **Longhorn** | [http://longhorn.lab](http://10.0.0.230) | Storage management |
+
+### Stock Terminal Features
+- **Tickers:** AAPL, AMZN, AX, AZN, F, GE, GEHC, GEV, GOOGL, NSC, NVDA, QQQ, SBUX, VOO, **MSFT, SPY, TSLA** (Recently Added).
+- **Time Ranges:** Selectable via dropdown: 6h, 12h, 24h, 3d, 7d, 30d, 60d, 90d, 6mo.
+- **Indicators:** Candlestick charts, SMA 50, SMA 200, and RSI (14-period).
+- **Signal Logic (Buy/Sell/Hold):** Automated signals based on trend (SMA) and momentum (RSI).
+
+### Stock Signal Logic
+The Stock Lab Terminal generates automated signals based on a combination of Trend and Momentum indicators:
+
+1. **BUY (Bullish):** 
+   - **Trend:** Current Price is above the 50-period Simple Moving Average (SMA50).
+   - **Momentum:** Relative Strength Index (RSI) is below 60 (indicating it's not yet overbought).
+   - **Context:** If SMA200 is available, SMA50 must be above SMA200.
+
+2. **SELL (Bearish/Overbought):**
+   - **Bearish:** Current Price is below the SMA50 AND SMA50 is below SMA200.
+   - **Overbought:** RSI is above 75 (indicating a likely pull-back).
+
+3. **HOLD (Neutral):**
+   - Default state when signals are conflicting (e.g., Price is above SMA50 but RSI is very high, or the market is consolidating).
+
+## Stock Pipeline Implementation
+The pipeline is deployed in the `pipeline` namespace and consists of:
+- **`stock-ingestor`:** A Python deployment using `yfinance` to pull 5-minute data. 
+  - **Bootstrap:** On startup, it pulls 60 days of 5m data and 6 months of 1h data for all tickers to ensure immediate historical context.
+  - **Pre/Post Market:** Now captures extended hours data (`prepost=True`).
+- **`stock-dashboard`:** A Streamlit application providing the frontend UI.
+- **`timescaledb`:** PostgreSQL with TimescaleDB extension for efficient time-series storage.
+
 ## Repository Structure
-- `ansible-lab/`: Ansible playbooks for cluster maintenance and metric reporting.
-- `kubespray/`: (Submodule/Dir) Cluster provisioning configuration.
-- `monitoring/`: Grafana dashboards and Prometheus configuration.
-- `fix_dashboards_uid.py`: Utility script for Grafana dashboard management.
-- `k8s_cluster.json`: Cluster export/state.
+- `ansible-lab/`: Ansible playbooks for cluster maintenance.
+- `ingest_stocks.py`: The core ingestion logic (deployed via ConfigMap).
+- `app.py`: Streamlit dashboard code (deployed via ConfigMap).
+- `stock-ingestor.yaml`: K8s deployment for the data pipeline.
+- `stock-dashboard.yaml`: K8s deployment for the frontend.
+- `grafana.yaml`: Persistent Grafana deployment.
+- `monitoring/`: Local dashboard JSON exports.
 
 ## Quick Start
 
